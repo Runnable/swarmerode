@@ -8,7 +8,7 @@ var pluck = require('101/pluck')
  * the functions with which we want to extend dockerode.
  */
 function Swarmerode () {
-  throw new Error('Cannot instanciate Swarmerode directly')
+  throw new Error('Cannot instantiate Swarmerode directly')
 }
 
 /**

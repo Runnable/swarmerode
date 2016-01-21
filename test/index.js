@@ -24,12 +24,12 @@ describe('Swarmerode', function () {
     assert.isFunction(instance.swarmHostExists)
   })
 
-  it('should not allow being instanciated directly', function () {
+  it('should not allow being instantiate directly', function () {
     var SwarmerodeClass = Swarmerode._Swarmerode
     assert.throws(
       function () { return new SwarmerodeClass() },
       Error,
-      /cannot instanciate swarmerode directly/i
+      /cannot instantiate swarmerode directly/i
     )
   })
 
