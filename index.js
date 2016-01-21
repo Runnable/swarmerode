@@ -29,7 +29,6 @@ Swarmerode.prototype.swarmHostExists = function (host, cb) {
 module.exports = function (Class) {
   Object.getOwnPropertyNames(Swarmerode.prototype).forEach(function (key) {
     if (key === 'constructor') { return }
-    if (exists(Class[key])) { return }
     if (exists(Class.prototype[key])) { return }
     Class.prototype[key] = Swarmerode.prototype[key]
   })
