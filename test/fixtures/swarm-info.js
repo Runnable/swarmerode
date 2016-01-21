@@ -1,39 +1,49 @@
 'use strict'
 
+var index = 0
+
+function hostEntry (host) {
+  var hostIndex = index++
+  var labelString = [
+    'executiondriver=native-0.2',
+    'kernelversion=4.1.13-boot2docker',
+    'operatingsystem=Boot2Docker 1.9.1 (TCL 6.4.1); master : ' +
+      'cef800b - Fri Nov 20 19:33:59 UTC 2015',
+    'provider=virtualbox',
+    'storagedriver=aufs'
+  ].join(', ')
+  return [
+    [ 'swarm-agent-0' + hostIndex, host ],
+    [ ' └ Containers', '12' ],
+    [ ' └ Reserved CPUs', '0 / 1' ],
+    [ ' └ Reserved Memory', '10 GiB / 1.021 GiB' ],
+    [ ' └ Labels', labelString ]
+  ]
+}
+
 module.exports = function (testHosts) {
-  var host1 = testHosts[0] || '192.168.99.102:2376'
-  var host2 = testHosts[1] || '192.168.99.103:2376'
-  var host3 = testHosts[2] || '192.168.99.101:2376'
+  if (!Array.isArray(testHosts) || testHosts.length <= 0) {
+    throw new Error('swarm-info requires a list of hosts')
+  }
+  var driverStatus = [
+    [ '\bRole', 'primary' ],
+    [ '\bStrategy', 'spread' ],
+    [ '\bFilters', 'health, port, dependency, affinity, constraint' ],
+    [ '\bNodes', testHosts.length.toString() ]
+  ]
+  testHosts.forEach(function (host) {
+    driverStatus.push.apply(driverStatus, hostEntry(host))
+  })
   return {
     ID: '',
     Containers: 16,
     Driver: '',
-    DriverStatus: [
-      [ '\bRole', 'primary' ],
-      [ '\bStrategy', 'spread' ],
-      [ '\bFilters', 'health, port, dependency, affinity, constraint' ],
-      [ '\bNodes', '3' ],
-      [ 'swarm-agent-00', host1 ],
-      [ ' └ Containers', '12' ],
-      [ ' └ Reserved CPUs', '0 / 1' ],
-      [ ' └ Reserved Memory', '10 GiB / 1.021 GiB' ],
-      [ ' └ Labels', 'executiondriver=native-0.2, kernelversion=4.1.13-boot2docker, operatingsystem=Boot2Docker 1.9.1 (TCL 6.4.1); master : cef800b - Fri Nov 20 19:33:59 UTC 2015, provider=virtualbox, storagedriver=aufs' ],
-      [ 'swarm-agent-01', host2 ],
-      [ ' └ Containers', '2' ],
-      [ ' └ Reserved CPUs', '0 / 1' ],
-      [ ' └ Reserved Memory', '0 B / 1.021 GiB' ],
-      [ ' └ Labels', 'executiondriver=native-0.2, kernelversion=4.1.13-boot2docker, operatingsystem=Boot2Docker 1.9.1 (TCL 6.4.1); master : cef800b - Fri Nov 20 19:33:59 UTC 2015, provider=virtualbox, storagedriver=aufs' ],
-      [ 'swarm-master', host3 ],
-      [ ' └ Containers', '2' ],
-      [ ' └ Reserved CPUs', '0 / 1' ],
-      [ ' └ Reserved Memory', '0 B / 1.021 GiB' ],
-      [ ' └ Labels', 'executiondriver=native-0.2, kernelversion=4.1.13-boot2docker, operatingsystem=Boot2Docker 1.9.1 (TCL 6.4.1); master : cef800b - Fri Nov 20 19:33:59 UTC 2015, provider=virtualbox, storagedriver=aufs' ]
-    ],
+    DriverStatus: driverStatus,
     ExecutionDriver: '',
     Images: 7,
     KernelVersion: '',
     OperatingSystem: '',
-    NCPU: 3,
+    NCPU: testHosts.length,
     MemTotal: 3290421657,
     Name: 'f0877b9fe8c1',
     Labels: null,
