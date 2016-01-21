@@ -4,6 +4,10 @@
   "description": "Swarm Client Extension for Dockerode",
   "main": "index.js",
   "scripts": {
+    "changelog": "github-changes -o Runnable -r swarmerode -a --only-pulls --use-commit-body --order-semver",
+    "coverage": "istanbul cover ./node_modules/.bin/_mocha -- test && npm run coverage-check",
+    "coverage-check": "istanbul check-coverage && echo 'Coverage check successful!'",
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
     "lint": "standard --verbose",
     "test": "mocha test"
   },
@@ -36,6 +40,8 @@
   },
   "devDependencies": {
     "chai": "^3.4.1",
+    "coveralls": "^2.11.6",
+    "istanbul": "^0.4.2",
     "mocha": "^2.3.4",
     "sinon": "^1.17.2",
     "standard": "^5.4.1"

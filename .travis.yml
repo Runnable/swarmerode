@@ -10,4 +10,6 @@ matrix:
 sudo: false
 script:
 - npm run lint
-- npm test
+- npm run coverage
+after_script:
+- npm run coveralls
