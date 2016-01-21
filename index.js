@@ -1,10 +1,11 @@
 'use strict'
 
 var exists = require('101/exists')
-var isFunction = require('101/is-function')
 var pluck = require('101/pluck')
 
-function Swarmerode () {}
+function Swarmerode () {
+  throw new Error('Cannot instanciate Swarmerode directly')
+}
 
 Swarmerode.prototype.swarmHosts = function (cb) {
   var ipRegex = new RegExp('^(?:[0-9]{1,3}\.){3}[0-9]{1,3}:[0-9]{1,5}$')
@@ -28,9 +29,12 @@ Swarmerode.prototype.swarmHostExists = function (host, cb) {
 module.exports = function (Class) {
   Object.getOwnPropertyNames(Swarmerode.prototype).forEach(function (key) {
     if (key === 'constructor') { return }
+    if (exists(Class[key])) { return }
     if (exists(Class.prototype[key])) { return }
-    if (isFunction(Class.prototype[key])) { return }
     Class.prototype[key] = Swarmerode.prototype[key]
   })
   return Class
 }
+
+// exposing the class for testing purposes only
+module.exports._Swarmerode = Swarmerode

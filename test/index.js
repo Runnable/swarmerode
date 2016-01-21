@@ -24,9 +24,52 @@ describe('Swarmerode', function () {
     assert.isFunction(instance.swarmHostExists)
   })
 
-  it('should not override existing properties')
+  it('should not allow being instanciated directly', function () {
+    var SwarmerodeClass = Swarmerode._Swarmerode
+    assert.throws(
+      function () { return new SwarmerodeClass() },
+      Error,
+      /cannot instanciate swarmerode directly/i
+    )
+  })
 
-  it('should not override existing functions')
+  it('should not override existing prototype properties', function () {
+    var sampleObject = { foo: 'bar' }
+    var SampleClass = function () {}
+    SampleClass.prototype.swarmHostExists = sampleObject
+    SampleClass = Swarmerode(SampleClass)
+    var sampleInstance = new SampleClass()
+    assert.isObject(sampleInstance.swarmHostExists)
+    assert.equal(sampleInstance.swarmHostExists, sampleObject)
+  })
+
+  it('should not override existing prototype functions', function () {
+    var sampleFunction = function () {}
+    var SampleClass = function () {}
+    SampleClass.prototype.swarmHostExists = sampleFunction
+    SampleClass = Swarmerode(SampleClass)
+    var sampleInstance = new SampleClass()
+    assert.isFunction(sampleInstance.swarmHostExists)
+    assert.equal(sampleInstance.swarmHostExists, sampleFunction)
+  })
+
+  it('should not override existing class properties', function () {
+    var sampleObject = { foo: 'bar' }
+    var SampleClass = function () {}
+    SampleClass.swarmHostExists = sampleObject
+    SampleClass = Swarmerode(SampleClass)
+    assert.isObject(SampleClass.swarmHostExists)
+    assert.equal(SampleClass.swarmHostExists, sampleObject)
+  })
+
+  it('should not override existing class functions', function () {
+    var sampleFunction = function () {}
+    var SampleClass = function () {}
+    SampleClass.swarmHostExists = sampleFunction
+    SampleClass = Swarmerode(SampleClass)
+    assert.isFunction(SampleClass.swarmHostExists)
+    assert.equal(SampleClass.swarmHostExists, sampleFunction)
+  })
 
   describe('swarmHosts', function () {
     it('should return any error from docker', function (done) {
