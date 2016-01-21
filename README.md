@@ -1,9 +1,10 @@
 # swarmerode
 
 [![Build Status](https://img.shields.io/travis/Runnable/swarmerode/master.svg?style=flat-square)](https://travis-ci.org/Runnable/swarmerode)
+[![Test Coverage](https://img.shields.io/coveralls/Runnable/swarmerode.svg?style=flat-square)](https://coveralls.io/github/Runnable/swarmerode)
 [![Dependency Status](https://img.shields.io/david/Runnable/swarmerode.svg?style=flat-square)](https://david-dm.org/Runnable/swarmerode)
 [![devDependency Status](https://img.shields.io/david/dev/Runnable/swarmerode.svg?style=flat-square)](https://david-dm.org/Runnable/swarmerode#info=devDependencies)
-[![Test Coverage](https://img.shields.io/coveralls/Runnable/swarmerode.svg?style=flat-square)](https://coveralls.io/github/Runnable/swarmerode)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 
 Swarmerode is a tool to extend [`dockerode`](https://www.npmjs.com/package/dockerode) with nice swarm helper functions.
 
