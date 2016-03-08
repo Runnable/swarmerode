@@ -1,7 +1,6 @@
 'use strict'
 
 var exists = require('101/exists')
-var pluck = require('101/pluck')
 
 /*
  * Swarmerode Class constructor. Not really to be used but as a placeholder for
@@ -16,13 +15,26 @@ function Swarmerode () {
  * @param {Function} cb Callback with signature (err, hosts).
  */
 Swarmerode.prototype.swarmHosts = function (cb) {
-  var ipRegex = new RegExp('^(?:[0-9]{1,3}\.){3}[0-9]{1,3}:[0-9]{1,5}$')
-  this.info(function (err, data) {
+  this.swarmInfo(function (err, data) {
     if (err) { return cb(err) }
-    var hosts = data.DriverStatus
-      .map(pluck(1))
-      .filter(ipRegex.test.bind(ipRegex))
+    var nodes = data.parsedSystemStatus.ParsedNodes
+    var hosts = Object.keys(nodes)
+      .map(function (key) {
+        return nodes[key].Host
+      })
     cb(null, hosts)
+  })
+}
+
+/**
+ * Return a formated list of swarm nodes
+ * @param {Function} cb Callback with signature (err, nodes).
+ */
+Swarmerode.prototype.swarmInfo = function (cb) {
+  this.info(function (err, info) {
+    if (err) { return cb(err) }
+    info.parsedSystemStatus = Swarmerode._parseSwarmSystemStatus(info.SystemStatus)
+    cb(null, info)
   })
 }
 
@@ -37,6 +49,68 @@ Swarmerode.prototype.swarmHostExists = function (host, cb) {
     var index = hosts.indexOf(host)
     cb(null, index !== -1)
   })
+}
+
+/**
+ * Parse and transform raw swarm data into the proper JSON.
+ * format: {
+ *   Role: 'primary'
+ *   Strategy: 'spread'
+ *   Filters: 'health, port, dependency, affinity, constraint'
+ *   Nodes: 42
+ *   ParsedNodes: {
+ *     <nodeHostname>: {
+ *       Host: '10.0.0.1:4242,
+ *       Containers: 5,
+ *       ReservedCpus: '0 / 1',
+ *       ReservedMem: '10 GiB / 1.021 GiB',
+ *       Labels: {
+ *         env: 'prod',
+ *         provider: 'virtualbox'
+ *       },
+ *       Error: '(none)',
+ *       UpdatedAt: '2016-03-08T19:02:41Z'
+ *     }
+ *   }
+ * }
+ * @param {Array} - array data response from swarm info
+ * @return array of json objects with swarm data for each node
+ */
+Swarmerode._parseSwarmSystemStatus = function (systemStatus) {
+  // the first 4 fields are Role, Strategy, Filters, Nodes respectively
+  var formatted = {
+    Role: systemStatus.shift()[1],
+    Strategy: systemStatus.shift()[1],
+    Filters: systemStatus.shift()[1],
+    Nodes: parseInt(systemStatus.shift()[1], 10),
+    ParsedNodes: {}
+  }
+
+  for (var i = 0; i < formatted.Nodes; i++) {
+    formatted.ParsedNodes[systemStatus[0][0]] = {
+      Host: systemStatus.shift()[1],
+      Containers: parseInt(systemStatus.shift()[1], 10),
+      ReservedCpus: systemStatus.shift()[1],
+      ReservedMem: systemStatus.shift()[1],
+      Labels: parseLabels(systemStatus.shift()[1]),
+      Error: systemStatus.shift()[1],
+      UpdatedAt: systemStatus.shift()[1]
+    }
+  }
+
+  function parseLabels (labelString) {
+    var labelsTokens = labelString.split(',')
+    var labels = {}
+    labelsTokens.forEach(function (labelToken) {
+      var pair = labelToken.split('=').map(function (s) {
+        return s.trim()
+      })
+      labels[pair[0]] = pair[1]
+    })
+    return labels
+  }
+
+  return formatted
 }
 
 /**
