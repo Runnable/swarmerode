@@ -145,6 +145,8 @@ describe('Swarmerode', function () {
 
       assert.equal(out.ParsedNodes['cool.node'].Host, coolNode.host)
       assert.isNumber(out.ParsedNodes['cool.node'].Containers)
+      assert.equal(out.ParsedNodes['cool.node'].Containers, 100)
+      assert.equal(out.ParsedNodes['cool.node'].Status, 'Healthy')
       assert.equal(out.ParsedNodes['cool.node'].ReservedCpus, '0 / 1')
       assert.equal(out.ParsedNodes['cool.node'].ReservedMem, '10 GiB / 1.021 GiB')
       assert.equal(out.ParsedNodes['cool.node'].Error, '(none)')
@@ -154,6 +156,8 @@ describe('Swarmerode', function () {
 
       assert.equal(out.ParsedNodes['un.cool.node'].Host, uncoolNode.host)
       assert.isNumber(out.ParsedNodes['un.cool.node'].Containers)
+      assert.equal(out.ParsedNodes['un.cool.node'].Status, 'Healthy')
+      assert.equal(out.ParsedNodes['un.cool.node'].Containers, 4)
       assert.equal(out.ParsedNodes['un.cool.node'].ReservedCpus, '0 / 1')
       assert.equal(out.ParsedNodes['un.cool.node'].ReservedMem, '10 GiB / 1.021 GiB')
       assert.equal(out.ParsedNodes['un.cool.node'].Error, '(none)')

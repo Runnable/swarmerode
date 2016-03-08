@@ -17,10 +17,11 @@ function hostEntry (hostInfo) {
   }
   var nodeName = hostInfo.nodeName || (' swarm-agent-0' + hostIndex)
   var host = hostInfo.host || ('10.0.0.' + hostIndex + ':4242')
-  var numContainers = '1' || hostInfo.Containers
+  var numContainers = hostInfo.Containers || '1'
 
   return [
     [ nodeName, host ],
+    [ '  └ Status', 'Healthy' ],
     [ '  └ Containers', numContainers ],
     [ '  └ Reserved CPUs', '0 / 1' ],
     [ '  └ Reserved Memory', '10 GiB / 1.021 GiB' ],
@@ -43,6 +44,7 @@ module.exports = function (testHosts) {
   testHosts.forEach(function (hostInfo) {
     SystemStatus.push.apply(SystemStatus, hostEntry(hostInfo))
   })
+
   return {
     ServerVersion: 'swarm/1.1.2',
     ID: '',

@@ -1,5 +1,6 @@
 'use strict'
 
+var clone = require('101/clone')
 var exists = require('101/exists')
 
 /*
@@ -77,6 +78,7 @@ Swarmerode.prototype.swarmHostExists = function (host, cb) {
  * @return array of json objects with swarm data for each node
  */
 Swarmerode._parseSwarmSystemStatus = function (systemStatus) {
+  systemStatus = clone(systemStatus)
   // the first 4 fields are Role, Strategy, Filters, Nodes respectively
   var formatted = {
     Role: systemStatus.shift()[1],
@@ -89,6 +91,7 @@ Swarmerode._parseSwarmSystemStatus = function (systemStatus) {
   for (var i = 0; i < formatted.Nodes; i++) {
     formatted.ParsedNodes[systemStatus[0][0]] = {
       Host: systemStatus.shift()[1],
+      Status: systemStatus.shift()[1],
       Containers: parseInt(systemStatus.shift()[1], 10),
       ReservedCpus: systemStatus.shift()[1],
       ReservedMem: systemStatus.shift()[1],
