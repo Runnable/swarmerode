@@ -89,7 +89,7 @@ Swarmerode._parseSwarmSystemStatus = function (systemStatus) {
   }
 
   for (var i = 0; i < formatted.Nodes; i++) {
-    formatted.ParsedNodes[systemStatus[0][0]] = {
+    formatted.ParsedNodes[systemStatus[0][0].trim()] = {
       Host: systemStatus.shift()[1],
       Status: systemStatus.shift()[1],
       Containers: parseInt(systemStatus.shift()[1], 10),

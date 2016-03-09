@@ -125,13 +125,13 @@ describe('Swarmerode', function () {
       var coolNode = {
         Labels: 'env=test, hd=ssd',
         Containers: 100,
-        nodeName: 'cool.node',
+        nodeName: '  cool.node',
         host: '10.42.42.42:4242'
       }
       var uncoolNode = {
         Labels: 'env=prod, hd=disk',
         Containers: 4,
-        nodeName: 'un.cool.node',
+        nodeName: '  un.cool.node',
         host: '10.7.7.7:4242'
       }
       var testHosts = swarmInfoMock([coolNode, uncoolNode])
