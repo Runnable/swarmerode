@@ -1,6 +1,7 @@
 'use strict'
 
 var clone = require('101/clone')
+var debug = require('debug')('swarmerode')
 var exists = require('101/exists')
 
 /*
@@ -35,6 +36,7 @@ Swarmerode.prototype.swarmInfo = function (cb) {
   this.info(function (err, info) {
     if (err) { return cb(err) }
     info.parsedSystemStatus = Swarmerode._parseSwarmSystemStatus(info.SystemStatus)
+    debug('swarm info %j', info)
     cb(null, info)
   })
 }
