@@ -36,7 +36,8 @@
     ]
   },
   "dependencies": {
-    "101": "^1.2.0"
+    "101": "^1.2.0",
+    "debug": "^2.2.0"
   },
   "devDependencies": {
     "chai": "^3.4.1",
