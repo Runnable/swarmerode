@@ -27,7 +27,8 @@ function hostEntry (hostInfo) {
     [ '  └ Reserved Memory', '10 GiB / 1.021 GiB' ],
     [ '  └ Labels', labelString ],
     [ '  └ Error', '(none)' ],
-    [ '  └ UpdatedAt', '2016-03-08T19:02:41Z' ]
+    [ '  └ UpdatedAt', '2016-03-08T19:02:41Z' ],
+    [ '  └ ServerVersion', '1.10.2' ]
   ]
 }
 
