@@ -99,7 +99,8 @@ Swarmerode._parseSwarmSystemStatus = function (systemStatus) {
       ReservedMem: systemStatus.shift()[1],
       Labels: parseLabels(systemStatus.shift()[1]),
       Error: systemStatus.shift()[1],
-      UpdatedAt: systemStatus.shift()[1]
+      UpdatedAt: systemStatus.shift()[1],
+      ServerVersion: systemStatus.shift()[1]
     }
   }
 
