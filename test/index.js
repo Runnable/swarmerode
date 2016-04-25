@@ -105,6 +105,26 @@ describe('Swarmerode', function () {
     })
   })
 
+  describe('swarmInfo', function () {
+    it('should call the class info function', function (done) {
+      sinon.spy(MockClass.prototype, 'info')
+      instance.swarmInfo(function (err) {
+        assert.isNull(err)
+        sinon.assert.calledOnce(MockClass.prototype.info)
+        done()
+      })
+    })
+
+    it('should pass through any info error', function (done) {
+      var error = new Error('foobar')
+      sinon.stub(MockClass.prototype, 'info').yieldsAsync(error)
+      instance.swarmInfo(function (err) {
+        assert.equal(err, error)
+        done()
+      })
+    })
+  })
+
   describe('swarmHostExists', function () {
     it('should return any error from consul', function (done) {
       var error = new Error('robot')
