@@ -4,6 +4,8 @@ var clone = require('101/clone')
 var debug = require('debug')('swarmerode')
 var exists = require('101/exists')
 
+var Consul = require('./consul')
+
 /*
  * Swarmerode Class constructor. Not really to be used but as a placeholder for
  * the functions with which we want to extend dockerode.
@@ -17,15 +19,7 @@ function Swarmerode () {
  * @param {Function} cb Callback with signature (err, hosts).
  */
 Swarmerode.prototype.swarmHosts = function (cb) {
-  this.swarmInfo(function (err, data) {
-    if (err) { return cb(err) }
-    var nodes = data.parsedSystemStatus.ParsedNodes
-    var hosts = Object.keys(nodes)
-      .map(function (key) {
-        return nodes[key].Host
-      })
-    cb(null, hosts)
-  })
+  Consul.getSwarmNodes(cb)
 }
 
 /**
@@ -47,7 +41,7 @@ Swarmerode.prototype.swarmInfo = function (cb) {
  * @param {Function} cb Callback with signature (err, hostExists).
  */
 Swarmerode.prototype.swarmHostExists = function (host, cb) {
-  this.swarmHosts(function (err, hosts) {
+  Consul.getSwarmNodes(function (err, hosts) {
     if (err) { return cb(err) }
     var index = hosts.indexOf(host)
     cb(null, index !== -1)
