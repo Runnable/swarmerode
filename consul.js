@@ -27,7 +27,7 @@ Consul._makeRequest = function (url, cb) {
 }
 
 Consul._getRecursiveKV = function (prefix, cb) {
-  Consul._makeRequest('http://' + CONSUL_HOST + '/v1/kv/${prefix}?recurse=true', cb)
+  Consul._makeRequest('http://' + CONSUL_HOST + '/v1/kv/' + prefix + '?recurse=true', cb)
 }
 
 Consul.getSwarmNodes = function (cb) {
