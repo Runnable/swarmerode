@@ -1,8 +1,5 @@
 'use strict'
 
-var loadenv = require('loadenv')
-loadenv()
-
 var request = require('request')
 
 var CONSUL_HOST = process.env.CONSUL_HOST
