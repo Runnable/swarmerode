@@ -19,16 +19,20 @@ var Swarmerode = require('../')
 describe('Swarmerode', function () {
   var MockClass
   var instance
+  var prevConsulHost = process.env.CONSUL_HOST
+
   beforeEach(function () {
+    process.env.CONSUL_HOST = 'somehost'
     MockClass = function () {}
     MockClass.prototype.info = function (cb) { cb(null, clone(testInfo)) }
     MockClass = Swarmerode(MockClass)
     instance = new MockClass()
-    sinon.stub(Consul, 'getSwarmNodes').yieldsAsync(null, exampleHosts)
+    sinon.stub(Consul.prototype, 'getSwarmNodes').yieldsAsync(null, exampleHosts)
   })
 
   afterEach(function () {
-    Consul.getSwarmNodes.restore()
+    Consul.prototype.getSwarmNodes.restore()
+    process.env.CONSUL_HOST = prevConsulHost
   })
 
   it('should extend a given class', function () {
@@ -88,7 +92,7 @@ describe('Swarmerode', function () {
   describe('swarmHosts', function () {
     it('should return any error from consul', function (done) {
       var error = new Error('robot')
-      Consul.getSwarmNodes.yieldsAsync(error)
+      Consul.prototype.getSwarmNodes.yieldsAsync(error)
       instance.swarmHosts(function (err) {
         assert.equal(err, error)
         done()
@@ -128,7 +132,7 @@ describe('Swarmerode', function () {
   describe('swarmHostExists', function () {
     it('should return any error from consul', function (done) {
       var error = new Error('robot')
-      Consul.getSwarmNodes.yieldsAsync(error)
+      Consul.prototype.getSwarmNodes.yieldsAsync(error)
       instance.swarmHostExists('10.0.0.1:4242', function (err) {
         assert.equal(err, error)
         done()

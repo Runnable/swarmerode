@@ -19,7 +19,8 @@ function Swarmerode () {
  * @param {Function} cb Callback with signature (err, hosts).
  */
 Swarmerode.prototype.swarmHosts = function (cb) {
-  Consul.getSwarmNodes(cb)
+  var consul = new Consul()
+  consul.getSwarmNodes(cb)
 }
 
 /**
@@ -41,7 +42,8 @@ Swarmerode.prototype.swarmInfo = function (cb) {
  * @param {Function} cb Callback with signature (err, hostExists).
  */
 Swarmerode.prototype.swarmHostExists = function (host, cb) {
-  Consul.getSwarmNodes(function (err, hosts) {
+  var consul = new Consul()
+  consul.getSwarmNodes(function (err, hosts) {
     if (err) { return cb(err) }
     var index = hosts.indexOf(host)
     cb(null, index !== -1)

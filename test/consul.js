@@ -9,18 +9,35 @@ var Consul = require('../consul')
 describe('Consul', function () {
   var mockRes = { statusCode: 200 }
   var mockBody = JSON.stringify([{ Value: 'bW9ja1ZhbHVl' }])
+  var prevConsulHost = process.env.CONSUL_HOST
+  var consul
 
   beforeEach(function () {
     sinon.stub(request, 'get').yieldsAsync(null, mockRes, mockBody)
+    process.env.CONSUL_HOST = 'somehost'
+    consul = new Consul()
   })
 
   afterEach(function () {
     request.get.restore()
+    process.env.CONSUL_HOST = prevConsulHost
+  })
+
+  describe('constructor', function () {
+    beforeEach(function () {
+      delete process.env.CONSUL_HOST
+    })
+
+    it('should throw', function () {
+      assert.throws(
+        function () { return new Consul() }
+      )
+    })
   })
 
   describe('_makeRequest', function () {
     it('shoud reach out to a url', function (done) {
-      Consul._makeRequest('mockUrl', function (err, body) {
+      consul._makeRequest('mockUrl', function (err, body) {
         assert.isNull(err)
         sinon.assert.calledOnce(request.get)
         sinon.assert.calledWithExactly(
@@ -36,16 +53,25 @@ describe('Consul', function () {
     it('should pass through any error', function (done) {
       var error = new Error('yup')
       request.get.yieldsAsync(error)
-      Consul._makeRequest('mockUrl', function (err) {
+      consul._makeRequest('mockUrl', function (err) {
         assert.equal(err, error)
         done()
       })
     })
 
     it('should decode values', function (done) {
-      Consul._makeRequest('mockUrl', function (err, body) {
+      consul._makeRequest('mockUrl', function (err, body) {
         assert.isNull(err)
         assert.equal(body[0].Value, 'mockValue')
+        done()
+      })
+    })
+
+    it('should default empty values to emptystring', function (done) {
+      request.get.yieldsAsync(null, mockRes, JSON.stringify([{}]))
+      consul._makeRequest('mockUrl', function (err, body) {
+        assert.isNull(err)
+        assert.equal(body[0].Value, '')
         done()
       })
     })
@@ -54,18 +80,18 @@ describe('Consul', function () {
   describe('_getRecursiveKV', function (done) {
     var mockParedBody = [{ Value: 'mockValue' }]
     beforeEach(function () {
-      sinon.stub(Consul, '_makeRequest').yieldsAsync(null, mockParedBody)
+      sinon.stub(Consul.prototype, '_makeRequest').yieldsAsync(null, mockParedBody)
     })
 
     afterEach(function () {
-      Consul._makeRequest.restore()
+      Consul.prototype._makeRequest.restore()
     })
 
     it('should call _makeRequest with a correct url', function (done) {
-      Consul._getRecursiveKV('my/prefix/', function (err, values) {
+      consul._getRecursiveKV('my/prefix/', function (err, values) {
         assert.isNull(err)
         sinon.assert.calledWithExactly(
-          Consul._makeRequest,
+          Consul.prototype._makeRequest,
           sinon.match(/.+my\/prefix\/.+recurse=true$/),
           sinon.match.func
         )
@@ -78,15 +104,15 @@ describe('Consul', function () {
   describe('getSwarmNodes', function (done) {
     var mockParedBody = [{ Key: 'swarm/docker/swarm/nodes/mockValue' }]
     beforeEach(function () {
-      sinon.stub(Consul, '_getRecursiveKV').yieldsAsync(null, mockParedBody)
+      sinon.stub(Consul.prototype, '_getRecursiveKV').yieldsAsync(null, mockParedBody)
     })
 
     afterEach(function () {
-      Consul._getRecursiveKV.restore()
+      Consul.prototype._getRecursiveKV.restore()
     })
 
     it('should get the nodes', function (done) {
-      Consul.getSwarmNodes(function (err, nodes) {
+      consul.getSwarmNodes(function (err, nodes) {
         assert.isNull(err)
         assert.lengthOf(nodes, 1)
         assert.equal(nodes[0], 'mockValue')
@@ -96,8 +122,8 @@ describe('Consul', function () {
 
     it('should pass through any error', function (done) {
       var error = new Error('robot')
-      Consul._getRecursiveKV.yieldsAsync(error)
-      Consul.getSwarmNodes(function (err, nodes) {
+      Consul.prototype._getRecursiveKV.yieldsAsync(error)
+      consul.getSwarmNodes(function (err, nodes) {
         assert.equal(err, error)
         done()
       })
