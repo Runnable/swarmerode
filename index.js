@@ -4,9 +4,15 @@ var clone = require('101/clone')
 var debug = require('debug')('swarmerode')
 var exists = require('101/exists')
 var Promise = require('bluebird')
-
 var cache = {}
+
 function handleCache (key, cacheFetch, cb) {
+
+  // If CACHE_LENGTH is not set we don't want to cache anything
+  if (!exists(process.env.CACHE_LENGTH)) {
+    return cacheFetch(cb)
+  }
+
   if (!cache[key]) {
     cache[key] = Promise.fromCallback(cacheFetch)
     setTimeout(function () {
