@@ -9,7 +9,7 @@ var cache = {}
 function handleCache (key, cacheFetch, cb) {
 
   // If CACHE_LENGTH is not set we don't want to cache anything
-  if (!exists(process.env.CACHE_LENGTH)) {
+  if (!exists(process.env.SWARMERODE_CACHE_LENGTH)) {
     return cacheFetch(cb)
   }
 
@@ -17,7 +17,7 @@ function handleCache (key, cacheFetch, cb) {
     cache[key] = Promise.fromCallback(cacheFetch)
     setTimeout(function () {
       delete cache[key]
-    }, process.env.CACHE_LENGTH)
+    }, process.env.SWARMERODE_CACHE_LENGTH)
   }
   cache[key].asCallback(cb)
 }
