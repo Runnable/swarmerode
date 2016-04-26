@@ -20,17 +20,18 @@ describe('cache', function () {
 
     it('should cache the method', function (done) {
       var count = 0
-      function cb () {
+      var cbTracker = sinon.stub()
+      function cb (err, data) {
+        cbTracker(err, data)
         count++
         if (count === 2) {
-          sinon.assert.calledTwice(spiedCb)
-          sinon.assert.calledWith(spiedCb, null, 'first')
-          sinon.assert.calledWith(spiedCb, null, 'first')
+          sinon.assert.calledTwice(cbTracker)
+          sinon.assert.calledWith(cbTracker, null, 'first')
+          sinon.assert.calledWith(cbTracker, null, 'first')
           sinon.assert.calledOnce(cacheTestMethod)
           done()
         }
       }
-      var spiedCb = sinon.spy(cb)
       cache.handleCache('cacheTest', cacheTestMethod, cb)
       cache.handleCache('cacheTest', cacheTestMethod, cb)
     })
@@ -38,17 +39,18 @@ describe('cache', function () {
     it('should not cache methods if no cache defined', function (done) {
       delete process.env.SWARMERODE_CACHE_LENGTH
       var count = 0
-      function cb () {
+      var cbTracker = sinon.stub()
+      function cb (err, data) {
+        cbTracker(err, data)
         count++
         if (count === 2) {
-          sinon.assert.calledTwice(spiedCb)
-          sinon.assert.calledWith(spiedCb, null, 'first')
-          sinon.assert.calledWith(spiedCb, null, 'second')
+          sinon.assert.calledTwice(cbTracker)
+          sinon.assert.calledWith(cbTracker, null, 'first')
+          sinon.assert.calledWith(cbTracker, null, 'second')
           sinon.assert.calledTwice(cacheTestMethod)
           done()
         }
       }
-      var spiedCb = sinon.spy(cb)
       cache.handleCache('cacheTest', cacheTestMethod, cb)
       cache.handleCache('cacheTest', cacheTestMethod, cb)
     })

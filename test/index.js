@@ -111,6 +111,15 @@ describe('Swarmerode', function () {
   })
 
   describe('swarmInfo', function () {
+    beforeEach(function () {
+      sinon.stub(cache, 'handleCache', function (key, check, cb) {
+        check(cb)
+      })
+    })
+    afterEach(function () {
+      cache.handleCache.restore()
+    })
+
     it('should call the class info function', function (done) {
       sinon.spy(MockClass.prototype, 'info')
       instance.swarmInfo(function (err) {
@@ -127,6 +136,13 @@ describe('Swarmerode', function () {
         assert.equal(err, error)
         done()
       })
+    })
+
+    it('should call cache with cb', function () {
+      var handleCb = sinon.stub()
+      instance.swarmInfo(handleCb)
+      sinon.assert.calledOnce(cache.handleCache)
+      sinon.assert.calledWith(cache.handleCache, 'info', sinon.match.func, handleCb)
     })
   })
 
@@ -154,21 +170,6 @@ describe('Swarmerode', function () {
         assert.isFalse(exists)
         done()
       })
-    })
-  })
-
-  describe('swarmInfo', function () {
-    beforeEach(function () {
-      sinon.stub(cache, 'handleCache')
-    })
-    afterEach(function () {
-      cache.handleCache.restore()
-    })
-    it('should call cache with cb', function () {
-      var handleCb = sinon.stub()
-      instance.swarmInfo(handleCb)
-      sinon.assert.calledOnce(cache.handleCache)
-      sinon.assert.calledWith(cache.handleCache, 'info', sinon.match.func, handleCb)
     })
   })
 
