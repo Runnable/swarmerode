@@ -7,10 +7,9 @@ var cache = {}
 
 /**
  * Utility function for caching
- * @param key
- * @param cacheFetch
- * @param cb
- * @returns {*}
+ * @param {String} key - Key to match the cache on
+ * @param {Function} cacheFetch - Function which will be executed to fill cache, expects async callback style
+ * @param {Function} cb - Callback to return the cached results
  */
 module.exports = {
   handleCache: function handleCache (key, cacheFetch, cb) {
