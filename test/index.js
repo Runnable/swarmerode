@@ -121,19 +121,17 @@ describe('Swarmerode', function () {
   })
 
   describe('swarmInfo', function () {
-    beforeEach(function (done) {
+    beforeEach(function () {
       sinon.stub(MockClass.prototype, 'info')
         .yields(null, {SystemStatus: 1})
         .onSecondCall().yields(null, {SystemStatus: 2})
       sinon.stub(Swarmerode._Swarmerode, '_parseSwarmSystemStatus')
       process.env.SWARMERODE_CACHE_LENGTH = 10000
-      done()
     })
-    afterEach(function (done) {
+    afterEach(function () {
       MockClass.prototype.info.restore()
       Swarmerode._Swarmerode._parseSwarmSystemStatus.restore()
       delete process.env.SWARMERODE_CACHE_LENGTH
-      done()
     })
     it('should cache the results', function (done) {
       var cbCount = 2
