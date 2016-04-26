@@ -37,7 +37,8 @@
   },
   "dependencies": {
     "101": "^1.2.0",
-    "debug": "^2.2.0"
+    "debug": "^2.2.0",
+    "request": "^2.72.0"
   },
   "devDependencies": {
     "chai": "^3.4.1",

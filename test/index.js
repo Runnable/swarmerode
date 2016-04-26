@@ -6,17 +6,33 @@ var sinon = require('sinon')
 
 var exampleHosts = [ '10.0.0.1:4242', '10.0.0.2:4242', '10.0.0.3:4242' ]
 var swarmInfoMock = require('./fixtures/swarm-info')
-var testInfo = swarmInfoMock([{ host: exampleHosts[0] }, { host: exampleHosts[1] }, { host: exampleHosts[2] }])
+var testInfo = swarmInfoMock([
+  { host: exampleHosts[0] },
+  { host: exampleHosts[1] },
+  { host: exampleHosts[2] }
+])
+
+var Consul = require('../consul')
+
 var Swarmerode = require('../')
 
 describe('Swarmerode', function () {
   var MockClass
   var instance
+  var prevConsulHost = process.env.CONSUL_HOST
+
   beforeEach(function () {
+    process.env.CONSUL_HOST = 'somehost'
     MockClass = function () {}
     MockClass.prototype.info = function (cb) { cb(null, clone(testInfo)) }
     MockClass = Swarmerode(MockClass)
     instance = new MockClass()
+    sinon.stub(Consul.prototype, 'getSwarmNodes').yieldsAsync(null, exampleHosts)
+  })
+
+  afterEach(function () {
+    Consul.prototype.getSwarmNodes.restore()
+    process.env.CONSUL_HOST = prevConsulHost
   })
 
   it('should extend a given class', function () {
@@ -74,9 +90,9 @@ describe('Swarmerode', function () {
   })
 
   describe('swarmHosts', function () {
-    it('should return any error from docker', function (done) {
+    it('should return any error from consul', function (done) {
       var error = new Error('robot')
-      sinon.stub(MockClass.prototype, 'info').yieldsAsync(error)
+      Consul.prototype.getSwarmNodes.yieldsAsync(error)
       instance.swarmHosts(function (err) {
         assert.equal(err, error)
         done()
@@ -93,10 +109,30 @@ describe('Swarmerode', function () {
     })
   })
 
-  describe('swarmHostExists', function () {
-    it('should return any error from docker', function (done) {
-      var error = new Error('robot')
+  describe('swarmInfo', function () {
+    it('should call the class info function', function (done) {
+      sinon.spy(MockClass.prototype, 'info')
+      instance.swarmInfo(function (err) {
+        assert.isNull(err)
+        sinon.assert.calledOnce(MockClass.prototype.info)
+        done()
+      })
+    })
+
+    it('should pass through any info error', function (done) {
+      var error = new Error('foobar')
       sinon.stub(MockClass.prototype, 'info').yieldsAsync(error)
+      instance.swarmInfo(function (err) {
+        assert.equal(err, error)
+        done()
+      })
+    })
+  })
+
+  describe('swarmHostExists', function () {
+    it('should return any error from consul', function (done) {
+      var error = new Error('robot')
+      Consul.prototype.getSwarmNodes.yieldsAsync(error)
       instance.swarmHostExists('10.0.0.1:4242', function (err) {
         assert.equal(err, error)
         done()
