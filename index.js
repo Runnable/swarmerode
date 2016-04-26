@@ -51,8 +51,9 @@ Swarmerode.prototype.swarmHosts = function (cb) {
  * @param {Function} cb Callback with signature (err, nodes).
  */
 Swarmerode.prototype.swarmInfo = function (cb) {
+  var self = this;
   handleCache('info', function (evalCb) {
-    this.info(function (err, info) {
+    self.info(function (err, info) {
       if (err) { return evalCb(err) }
       info.parsedSystemStatus = Swarmerode._parseSwarmSystemStatus(info.SystemStatus)
       debug('swarm info %j', info)
