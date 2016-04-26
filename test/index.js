@@ -165,7 +165,7 @@ describe('Swarmerode', function () {
       cache.handleCache.restore()
     })
     it('should call cache with cb', function () {
-      var handleCb = function (){ }
+      var handleCb = sinon.stub()
       instance.swarmInfo(handleCb)
       sinon.assert.calledOnce(cache.handleCache)
       sinon.assert.calledWith(cache.handleCache, 'info', sinon.match.func, handleCb)

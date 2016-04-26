@@ -4,8 +4,6 @@ var clone = require('101/clone')
 var debug = require('debug')('swarmerode')
 var exists = require('101/exists')
 var cache = require('./cache')
-
-
 var Consul = require('./consul')
 
 /*

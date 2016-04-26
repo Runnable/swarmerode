@@ -4,7 +4,6 @@ var Promise = require('bluebird')
 var exists = require('101/exists')
 var cache = {}
 
-
 /**
  * Utility function for caching
  * @param {String} key - Key to match the cache on
