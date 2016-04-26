@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "101": "^1.2.0",
+    "bluebird": "^3.3.5",
     "debug": "^2.2.0"
   },
   "devDependencies": {
