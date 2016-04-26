@@ -7,7 +7,6 @@ var Promise = require('bluebird')
 var cache = {}
 
 function handleCache (key, cacheFetch, cb) {
-
   // If CACHE_LENGTH is not set we don't want to cache anything
   if (!exists(process.env.SWARMERODE_CACHE_LENGTH)) {
     return cacheFetch(cb)
@@ -54,7 +53,7 @@ Swarmerode.prototype.swarmHosts = function (cb) {
  * @param {Function} cb Callback with signature (err, nodes).
  */
 Swarmerode.prototype.swarmInfo = function (cb) {
-  var self = this;
+  var self = this
   handleCache('info', function (evalCb) {
     self.info(function (err, info) {
       if (err) { return evalCb(err) }
