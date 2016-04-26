@@ -59,6 +59,22 @@ describe('Consul', function () {
       })
     })
 
+    it('should fail with an error if response in not a JSON', function (done) {
+      request.get.yieldsAsync(null, null, 'not-a-josn')
+      consul._makeRequest('mockUrl', function (err) {
+        assert.equal(err.message, 'Parse Consul response error')
+        done()
+      })
+    })
+
+    it('should fail with an error if reposnse in not a JSON array', function (done) {
+      request.get.yieldsAsync(null, null, '{"a":1}')
+      consul._makeRequest('mockUrl', function (err) {
+        assert.equal(err.message, 'Invalid Consul response')
+        done()
+      })
+    })
+
     it('should decode values', function (done) {
       consul._makeRequest('mockUrl', function (err, body) {
         assert.isNull(err)

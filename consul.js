@@ -14,7 +14,14 @@ function Consul () {
 Consul.prototype._makeRequest = function (url, cb) {
   request.get(url, {}, function (err, res, body) {
     if (err) { return cb(err) }
-    body = JSON.parse(body)
+    try {
+      body = JSON.parse(body)
+    } catch (parseErr) {
+      return cb(new Error('Parse Consul response error', { originalErr: parseErr }))
+    }
+    if (!Array.isArray(body)) {
+      return cb(new Error('Invalid Consul response'))
+    }
     body = body.map(function (v) {
       v.Value = v.Value ? (new Buffer(v.Value, 'base64')).toString('utf-8') : ''
       return v
