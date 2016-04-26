@@ -3,26 +3,8 @@
 var clone = require('101/clone')
 var debug = require('debug')('swarmerode')
 var exists = require('101/exists')
-var Promise = require('bluebird')
-var cache = {}
+var cache = require('./cache')
 
-function handleCache (key, cacheFetch, cb) {
-  // If SWARMERODE_CACHE_LENGTH is not set we don't want to cache anything
-  if (!exists(process.env.SWARMERODE_CACHE_LENGTH)) {
-    return cacheFetch(cb)
-  }
-
-  if (!cache[key]) {
-    cache[key] = Promise.fromCallback(cacheFetch)
-    cache[key]
-      .catch(function () {}) // Eat the errors
-      .delay(process.env.SWARMERODE_CACHE_LENGTH)
-      .then(function () {
-        delete cache[key]
-      })
-  }
-  cache[key].asCallback(cb)
-}
 
 var Consul = require('./consul')
 
@@ -49,7 +31,7 @@ Swarmerode.prototype.swarmHosts = function (cb) {
  */
 Swarmerode.prototype.swarmInfo = function (cb) {
   var self = this
-  handleCache('info', function (evalCb) {
+  cache.handleCache('info', function (evalCb) {
     self.info(function (err, info) {
       if (err) { return evalCb(err) }
       info.parsedSystemStatus = Swarmerode._parseSwarmSystemStatus(info.SystemStatus)

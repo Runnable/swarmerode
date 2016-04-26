@@ -3,6 +3,7 @@
 var assert = require('chai').assert
 var clone = require('101/clone')
 var sinon = require('sinon')
+var cache = require('../cache')
 
 var exampleHosts = [ '10.0.0.1:4242', '10.0.0.2:4242', '10.0.0.3:4242' ]
 var swarmInfoMock = require('./fixtures/swarm-info')
@@ -158,44 +159,16 @@ describe('Swarmerode', function () {
 
   describe('swarmInfo', function () {
     beforeEach(function () {
-      sinon.stub(MockClass.prototype, 'info')
-        .yields(null, {SystemStatus: 1})
-        .onSecondCall().yields(null, {SystemStatus: 2})
-      sinon.stub(Swarmerode._Swarmerode, '_parseSwarmSystemStatus')
-      process.env.SWARMERODE_CACHE_LENGTH = 10000
+      sinon.stub(cache, 'handleCache')
     })
     afterEach(function () {
-      MockClass.prototype.info.restore()
-      Swarmerode._Swarmerode._parseSwarmSystemStatus.restore()
-      delete process.env.SWARMERODE_CACHE_LENGTH
+      cache.handleCache.restore()
     })
-    it('should cache the results', function (done) {
-      var cbCount = 2
-      function handleCb () {
-        cbCount--
-        if (cbCount === 0) {
-          sinon.assert.calledOnce(Swarmerode._Swarmerode._parseSwarmSystemStatus)
-          sinon.assert.calledWith(Swarmerode._Swarmerode._parseSwarmSystemStatus, 1)
-          done()
-        }
-      }
+    it('should call cache with cb', function () {
+      var handleCb = function (){ }
       instance.swarmInfo(handleCb)
-      instance.swarmInfo(handleCb)
-    })
-    it('should not cache the results', function (done) {
-      delete process.env.SWARMERODE_CACHE_LENGTH
-      var cbCount = 2
-      function handleCb () {
-        cbCount--
-        if (cbCount === 0) {
-          sinon.assert.calledTwice(Swarmerode._Swarmerode._parseSwarmSystemStatus)
-          sinon.assert.calledWith(Swarmerode._Swarmerode._parseSwarmSystemStatus, 1)
-          sinon.assert.calledWith(Swarmerode._Swarmerode._parseSwarmSystemStatus, 2)
-          done()
-        }
-      }
-      instance.swarmInfo(handleCb)
-      instance.swarmInfo(handleCb)
+      sinon.assert.calledOnce(cache.handleCache)
+      sinon.assert.calledWith(cache.handleCache, 'info', sinon.match.func, handleCb)
     })
   })
 
