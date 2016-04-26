@@ -15,9 +15,12 @@ function handleCache (key, cacheFetch, cb) {
 
   if (!cache[key]) {
     cache[key] = Promise.fromCallback(cacheFetch)
-    setTimeout(function () {
-      delete cache[key]
-    }, process.env.SWARMERODE_CACHE_LENGTH)
+    cache[key]
+      .catch(function () {}) // Eat the errors
+      .delay(process.env.SWARMERODE_CACHE_LENGTH)
+      .then(function () {
+        delete cache[key]
+      })
   }
   cache[key].asCallback(cb)
 }
