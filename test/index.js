@@ -145,7 +145,7 @@ describe('Swarmerode', function () {
       }
       instance.swarmInfo(handleCb)
       instance.swarmInfo(handleCb)
-    });
+    })
     it('should not cache the results', function (done) {
       delete process.env.SWARMERODE_CACHE_LENGTH
       var cbCount = 2
@@ -160,7 +160,7 @@ describe('Swarmerode', function () {
       }
       instance.swarmInfo(handleCb)
       instance.swarmInfo(handleCb)
-    });
+    })
   })
 
   describe('_parseSwarmSystemStatus', function () {
