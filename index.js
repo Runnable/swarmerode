@@ -7,7 +7,7 @@ var Promise = require('bluebird')
 var cache = {}
 
 function handleCache (key, cacheFetch, cb) {
-  // If CACHE_LENGTH is not set we don't want to cache anything
+  // If SWARMERODE_CACHE_LENGTH is not set we don't want to cache anything
   if (!exists(process.env.SWARMERODE_CACHE_LENGTH)) {
     return cacheFetch(cb)
   }
