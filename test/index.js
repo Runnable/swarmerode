@@ -120,6 +120,51 @@ describe('Swarmerode', function () {
     })
   })
 
+  describe('swarmInfo', function () {
+    beforeEach(function (done) {
+      sinon.stub(MockClass.prototype, 'info')
+        .yields(null, {SystemStatus: 1})
+        .onSecondCall().yields(null, {SystemStatus: 2})
+      sinon.stub(Swarmerode._Swarmerode, '_parseSwarmSystemStatus')
+      process.env.SWARMERODE_CACHE_LENGTH = 10000
+      done()
+    })
+    afterEach(function (done) {
+      MockClass.prototype.info.restore()
+      Swarmerode._Swarmerode._parseSwarmSystemStatus.restore()
+      delete process.env.SWARMERODE_CACHE_LENGTH
+      done()
+    })
+    it('should cache the results', function (done) {
+      var cbCount = 2
+      function handleCb () {
+        cbCount--
+        if (cbCount === 0) {
+          sinon.assert.calledOnce(Swarmerode._Swarmerode._parseSwarmSystemStatus)
+          sinon.assert.calledWith(Swarmerode._Swarmerode._parseSwarmSystemStatus, 1)
+          done()
+        }
+      }
+      instance.swarmInfo(handleCb)
+      instance.swarmInfo(handleCb)
+    });
+    it('should not cache the results', function (done) {
+      delete process.env.SWARMERODE_CACHE_LENGTH
+      var cbCount = 2
+      function handleCb () {
+        cbCount--
+        if (cbCount === 0) {
+          sinon.assert.calledTwice(Swarmerode._Swarmerode._parseSwarmSystemStatus)
+          sinon.assert.calledWith(Swarmerode._Swarmerode._parseSwarmSystemStatus, 1)
+          sinon.assert.calledWith(Swarmerode._Swarmerode._parseSwarmSystemStatus, 2)
+          done()
+        }
+      }
+      instance.swarmInfo(handleCb)
+      instance.swarmInfo(handleCb)
+    });
+  })
+
   describe('_parseSwarmSystemStatus', function () {
     it('should format SystemStatus correctly', function (done) {
       var coolNode = {
