@@ -1,5 +1,6 @@
 'use strict'
 
+var assert = require('chai').assert
 var sinon = require('sinon')
 var cache = require('../cache')
 
@@ -66,15 +67,15 @@ describe('cache', function () {
         if (count === 3) {
           sinon.assert.calledThrice(cbTracker)
           sinon.assert.calledWith(cbTracker, null, 'first')
-          sinon.assert.calledWith(cbTracker, failCase)
-          sinon.assert.calledOnce(cacheTestMethod)
+          assert.equal(cbTracker.lastCall.args[0].message, failCase.message)
+          sinon.assert.calledTwice(cacheTestMethod)
           done()
         }
       }
-      cache.handleCache('cacheTest', cacheTestMethod, cb)
-      cache.handleCache('cacheTest', cacheTestMethod, cb)
+      cache.handleCache('cacheTest2', cacheTestMethod, cb)
+      cache.handleCache('cacheTest2', cacheTestMethod, cb)
       setTimeout(function () {
-        cache.handleCache('cacheTest', cacheTestMethod, cb)
+        cache.handleCache('cacheTest2', cacheTestMethod, cb)
       }, 100)
     })
   })
