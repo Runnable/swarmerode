@@ -56,7 +56,7 @@ describe('cache', function () {
       cache.handleCache('cacheTest', cacheTestMethod, cb)
     })
 
-    it('should expire the cache', function () {
+    it('should expire the cache', function (done) {
       process.env.SWARMERODE_CACHE_LENGTH = 10
       var count = 0
       var cbTracker = sinon.stub()
@@ -76,7 +76,7 @@ describe('cache', function () {
       setTimeout(function () {
         cache.handleCache('cacheTest', cacheTestMethod, cb)
       }, 100)
-    });
+    })
   })
 })
 
