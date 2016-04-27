@@ -3,6 +3,7 @@
 var assert = require('chai').assert
 var clone = require('101/clone')
 var sinon = require('sinon')
+var cache = require('../cache')
 
 var exampleHosts = [ '10.0.0.1:4242', '10.0.0.2:4242', '10.0.0.3:4242' ]
 var swarmInfoMock = require('./fixtures/swarm-info')
@@ -110,6 +111,15 @@ describe('Swarmerode', function () {
   })
 
   describe('swarmInfo', function () {
+    beforeEach(function () {
+      sinon.stub(cache, 'handleCache', function (key, check, cb) {
+        check(cb)
+      })
+    })
+    afterEach(function () {
+      cache.handleCache.restore()
+    })
+
     it('should call the class info function', function (done) {
       sinon.spy(MockClass.prototype, 'info')
       instance.swarmInfo(function (err) {
@@ -126,6 +136,13 @@ describe('Swarmerode', function () {
         assert.equal(err, error)
         done()
       })
+    })
+
+    it('should call cache with cb', function () {
+      var handleCb = sinon.stub()
+      instance.swarmInfo(handleCb)
+      sinon.assert.calledOnce(cache.handleCache)
+      sinon.assert.calledWith(cache.handleCache, 'info', sinon.match.func, handleCb)
     })
   })
 

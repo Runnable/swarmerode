@@ -3,7 +3,7 @@
 var clone = require('101/clone')
 var debug = require('debug')('swarmerode')
 var exists = require('101/exists')
-
+var cache = require('./cache')
 var Consul = require('./consul')
 
 /*
@@ -28,12 +28,15 @@ Swarmerode.prototype.swarmHosts = function (cb) {
  * @param {Function} cb Callback with signature (err, nodes).
  */
 Swarmerode.prototype.swarmInfo = function (cb) {
-  this.info(function (err, info) {
-    if (err) { return cb(err) }
-    info.parsedSystemStatus = Swarmerode._parseSwarmSystemStatus(info.SystemStatus)
-    debug('swarm info %j', info)
-    cb(null, info)
-  })
+  var self = this
+  cache.handleCache('info', function (evalCb) {
+    self.info(function (err, info) {
+      if (err) { return evalCb(err) }
+      info.parsedSystemStatus = Swarmerode._parseSwarmSystemStatus(info.SystemStatus)
+      debug('swarm info %j', info)
+      evalCb(null, info)
+    })
+  }, cb)
 }
 
 /**
