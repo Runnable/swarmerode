@@ -6,6 +6,7 @@ var SWARM_PREFIX = 'swarm/docker/swarm/nodes/'
 
 function Consul () {
   this.CONSUL_HOST = process.env.CONSUL_HOST
+  this.CONSUL_PORT = process.env.CONSUL_PORT || 80
   if (!this.CONSUL_HOST) {
     throw new Error('CONSUL_HOST must be defined')
   }
@@ -31,7 +32,7 @@ Consul.prototype._makeRequest = function (url, cb) {
 }
 
 Consul.prototype._getRecursiveKV = function (prefix, cb) {
-  this._makeRequest('http://' + this.CONSUL_HOST + '/v1/kv/' + prefix + '?recurse=true', cb)
+  this._makeRequest('http://' + this.CONSUL_HOST + ':' + this.CONSUL_PORT + '/v1/kv/' + prefix + '?recurse=true', cb)
 }
 
 Consul.prototype.getSwarmNodes = function (cb) {
