@@ -33,17 +33,6 @@ describe('Consul', function () {
         function () { return new Consul() }
       )
     })
-
-    it('should default to port 80', function () {
-      assert(consul.CONSUL_PORT, 80)
-    })
-
-    it('should have port specified in ENV', function () {
-      process.env.CONSUL_PORT = 8500
-      process.env.CONSUL_HOST = 'somehost'
-      consul = new Consul()
-      assert.equal(consul.CONSUL_PORT, 8500)
-    })
   })
 
   describe('_makeRequest', function () {
