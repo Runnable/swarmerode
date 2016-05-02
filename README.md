@@ -12,8 +12,6 @@ Swarmerode is a tool to extend [`dockerode`](https://www.npmjs.com/package/docke
 
 The environment variable `SWARMERODE_CACHE_LENGTH` can be set to the number of milliseconds you'd like the docker info calls to be cached for.
 
-The environment variable `CONSUL_HOST` and `CONSUL_PORT` can be set to connect to consul directly.
-
 ## Example
 
 ```javascript
