@@ -219,5 +219,42 @@ describe('Swarmerode', function () {
       assert.equal(out.ParsedNodes['un.cool.node'].Labels.hd, 'disk')
       done()
     })
+
+    it('should only return correctly formated nodes', function (done) {
+      var coolNode = {
+        Labels: 'env=test, hd=ssd',
+        Containers: 100,
+        nodeName: '  cool.node',
+        host: '10.42.42.42:4242'
+      }
+      var uncoolNode = {
+        Containers: 4,
+        nodeName: '  un.cool.node',
+        host: '10.7.7.7:4242'
+      }
+      var testHosts = swarmInfoMock([coolNode, uncoolNode])
+      delete testHosts.SystemStatus[18]
+      var out = Swarmerode._Swarmerode._parseSwarmSystemStatus(testHosts.SystemStatus)
+      assert.equal(out.Role, 'primary')
+      assert.equal(out.Strategy, 'spread')
+      assert.equal(out.Filters, 'health, port, dependency, affinity, constraint')
+      assert.isNumber(out.Nodes)
+      assert.equal(out.Nodes, 2)
+
+      assert.equal(out.ParsedNodes['cool.node'].Host, coolNode.host)
+      assert.isNumber(out.ParsedNodes['cool.node'].Containers)
+      assert.equal(out.ParsedNodes['cool.node'].Containers, 100)
+      assert.equal(out.ParsedNodes['cool.node'].Status, 'Healthy')
+      assert.equal(out.ParsedNodes['cool.node'].ReservedCpus, '0 / 1')
+      assert.equal(out.ParsedNodes['cool.node'].ReservedMem, '10 GiB / 1.021 GiB')
+      assert.equal(out.ParsedNodes['cool.node'].Error, '(none)')
+      assert.equal(out.ParsedNodes['cool.node'].UpdatedAt, '2016-03-08T19:02:41Z')
+      assert.equal(out.ParsedNodes['cool.node'].Labels.env, 'test')
+      assert.equal(out.ParsedNodes['cool.node'].Labels.hd, 'ssd')
+
+      assert.isUndefined(out.ParsedNodes['un.cool.node'])
+
+      done()
+    })
   }) // end _parseSwarmSystemStatus
 })

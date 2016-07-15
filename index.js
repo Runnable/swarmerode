@@ -90,16 +90,20 @@ Swarmerode._parseSwarmSystemStatus = function (systemStatus) {
   }
 
   for (var i = 0; i < formatted.Nodes; i++) {
-    formatted.ParsedNodes[systemStatus[0][0].trim()] = {
-      Host: systemStatus.shift()[1],
-      Status: systemStatus.shift()[1],
-      Containers: parseInt(systemStatus.shift()[1], 10),
-      ReservedCpus: systemStatus.shift()[1],
-      ReservedMem: systemStatus.shift()[1],
-      Labels: parseLabels(systemStatus.shift()[1]),
-      Error: systemStatus.shift()[1],
-      UpdatedAt: systemStatus.shift()[1],
-      ServerVersion: systemStatus.shift()[1]
+    try {
+      formatted.ParsedNodes[systemStatus[0][0].trim()] = {
+        Host: systemStatus.shift()[1],
+        Status: systemStatus.shift()[1],
+        Containers: parseInt(systemStatus.shift()[1], 10),
+        ReservedCpus: systemStatus.shift()[1],
+        ReservedMem: systemStatus.shift()[1],
+        Labels: parseLabels(systemStatus.shift()[1]),
+        Error: systemStatus.shift()[1],
+        UpdatedAt: systemStatus.shift()[1],
+        ServerVersion: systemStatus.shift()[1]
+      }
+    } catch (err) {
+      debug('ERROR - invalid node', err.message)
     }
   }
 
