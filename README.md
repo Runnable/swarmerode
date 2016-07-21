@@ -8,10 +8,6 @@
 
 Swarmerode is a tool to extend [`dockerode`](https://www.npmjs.com/package/dockerode) with nice swarm helper functions.
 
-## Configuration
-
-The environment variable `SWARMERODE_CACHE_LENGTH` can be set to the number of milliseconds you'd like the docker info calls to be cached for.
-
 ## Example
 
 ```javascript

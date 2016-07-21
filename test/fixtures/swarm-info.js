@@ -15,12 +15,13 @@ function hostEntry (hostInfo) {
   if (hostInfo.Labels) {
     labelString += ', ' + hostInfo.Labels
   }
-  var nodeName = hostInfo.nodeName || (' swarm-agent-0' + hostIndex)
+  var nodeName = hostInfo.nodeName || (' ip-swarm-agent-0' + hostIndex)
   var host = hostInfo.host || ('10.0.0.' + hostIndex + ':4242')
   var numContainers = hostInfo.Containers || '1'
 
   return [
     [ nodeName, host ],
+    [ '  └ ID', '' + Math.random() ],
     [ '  └ Status', 'Healthy' ],
     [ '  └ Containers', numContainers ],
     [ '  └ Reserved CPUs', '0 / 1' ],
