@@ -59,6 +59,7 @@ Swarmerode.prototype.swarmHostExists = function (host, cb) {
  *   ParsedNodes: {
  *     <nodeHostname>: {
  *       Host: '10.0.0.1:4242,
+ *       Status: 'Healthy',
  *       Containers: 5,
  *       ReservedCpus: '0 / 1',
  *       ReservedMem: '10 GiB / 1.021 GiB',
@@ -71,6 +72,7 @@ Swarmerode.prototype.swarmHostExists = function (host, cb) {
  *     }
  *   }
  * }
+ * nodeHostname should be in format similar to ip-10.20.10.12 or `(unknown)`
  * @param {Array} - array data response from swarm info
  * @return array of json objects with swarm data for each node
  */
