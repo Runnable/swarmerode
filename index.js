@@ -84,24 +84,55 @@ Swarmerode._parseSwarmSystemStatus = function (systemStatus) {
     Nodes: parseInt(systemStatus.shift()[1], 10),
     ParsedNodes: {}
   }
-
-  for (var i = 0; i < formatted.Nodes; i++) {
-    try {
-      formatted.ParsedNodes[systemStatus[0][0].trim()] = {
-        Host: systemStatus.shift()[1],
-        ID: systemStatus.shift()[1],
-        Status: systemStatus.shift()[1],
-        Containers: parseInt(systemStatus.shift()[1], 10),
-        ReservedCpus: systemStatus.shift()[1],
-        ReservedMem: systemStatus.shift()[1],
-        Labels: parseLabels(systemStatus.shift()[1]),
-        UpdatedAt: systemStatus.shift()[1],
-        ServerVersion: systemStatus.shift()[1]
+  var parsedNodes = systemStatus.reduce(
+    function (nodesArray, itemPair) {
+      var key = itemPair[0].toLowerCase().trim()
+      var value = itemPair[1]
+      // when status is pending node will have no IP but will have `(unknown)` key
+      if (key.indexOf('ip-') === 0 || key === '(unknown)') {
+        nodesArray.push({
+          Host: value
+        })
+      } else {
+        // updated the last node
+        var normalizedKey = null
+        if (key.indexOf('id') > -1) {
+          normalizedKey = 'ID'
+        } else if (key.indexOf('status') > -1) {
+          normalizedKey = 'Status'
+        } else if (key.indexOf('containers') > -1) {
+          normalizedKey = 'Containers'
+        } else if (key.indexOf('reserved cpus') > -1) {
+          normalizedKey = 'ReservedCpus'
+        } else if (key.indexOf('reserved memory') > -1) {
+          normalizedKey = 'ReservedMem'
+        } else if (key.indexOf('error') > -1) {
+          normalizedKey = 'Error'
+        } else if (key.indexOf('updatedat') > -1) {
+          normalizedKey = 'UpdatedAt'
+        } else if (key.indexOf('labels') > -1) {
+          normalizedKey = 'Labels'
+        } else if (key.indexOf('ServerVersion') > -1) {
+          normalizedKey = 'ServerVersion'
+        }
+        if (normalizedKey && nodesArray.length > 0) {
+          if (normalizedKey === 'Labels') {
+            nodesArray[nodesArray.length - 1][normalizedKey] = parseLabels(value)
+          } else {
+            nodesArray[nodesArray.length - 1][normalizedKey] = value
+          }
+        }
       }
-    } catch (err) {
-      debug('ERROR - invalid node', err.message)
-    }
-  }
+      return nodesArray
+    },
+  [])
+  // convert array to object indexed by host
+  formatted.ParsedNodes = parsedNodes.reduce(
+    function (obj, item) {
+      obj[item.Host] = item
+      return obj
+    },
+  {})
 
   function parseLabels (labelString) {
     var labelsTokens = labelString.split(',')

@@ -2,7 +2,7 @@
 
 var index = 0
 
-function hostEntry (hostInfo) {
+function hostEntry (hostInfo, isError) {
   var hostIndex = index++
   var labelString = [
     'executiondriver=native-0.2',
@@ -19,10 +19,10 @@ function hostEntry (hostInfo) {
   var host = hostInfo.host || ('10.0.0.' + hostIndex + ':4242')
   var numContainers = hostInfo.Containers || '1'
 
-  return [
+  var node = [
     [ nodeName, host ],
     [ '  └ ID', '' + Math.random() ],
-    [ '  └ Status', 'Healthy' ],
+    [ '  └ Status', isError ? 'Pending' : 'Healthy' ],
     [ '  └ Containers', numContainers ],
     [ '  └ Reserved CPUs', '0 / 1' ],
     [ '  └ Reserved Memory', '10 GiB / 1.021 GiB' ],
@@ -30,9 +30,13 @@ function hostEntry (hostInfo) {
     [ '  └ UpdatedAt', '2016-03-08T19:02:41Z' ],
     [ '  └ ServerVersion', '1.10.2' ]
   ]
+  if (isError) {
+    node.push([ '  └ Error', 'Docker daemon is unavailable' ])
+  }
+  return node
 }
 
-module.exports = function (testHosts) {
+module.exports = function (testHosts, isError) {
   if (!Array.isArray(testHosts) || testHosts.length <= 0) {
     throw new Error('swarm-info requires a list of hosts')
   }
@@ -43,7 +47,7 @@ module.exports = function (testHosts) {
     [ 'Nodes', testHosts.length.toString() ]
   ]
   testHosts.forEach(function (hostInfo) {
-    SystemStatus.push.apply(SystemStatus, hostEntry(hostInfo))
+    SystemStatus.push.apply(SystemStatus, hostEntry(hostInfo, isError))
   })
 
   return {
