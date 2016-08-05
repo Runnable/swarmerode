@@ -157,7 +157,7 @@ describe('Swarmerode', function () {
   })
 
   describe('_parseSwarmSystemStatus', function () {
-    it('should format SystemStatus correctly', function (done) {
+    it('should not parse node that has incorrect nodename', function (done) {
       var coolNode = {
         Labels: 'env=test, hd=ssd',
         Containers: 100,
@@ -178,44 +178,23 @@ describe('Swarmerode', function () {
       assert.equal(out.Filters, 'health, port, dependency, affinity, constraint')
       assert.isNumber(out.Nodes)
       assert.equal(out.Nodes, 2)
-
-      assert.equal(out.ParsedNodes['cool.node'].Host, coolNode.host)
-      assert.isNumber(out.ParsedNodes['cool.node'].Containers)
-      assert.isString(out.ParsedNodes['cool.node'].ID)
-      assert.equal(out.ParsedNodes['cool.node'].Containers, 100)
-      assert.equal(out.ParsedNodes['cool.node'].Status, 'Healthy')
-      assert.equal(out.ParsedNodes['cool.node'].ReservedCpus, '0 / 1')
-      assert.equal(out.ParsedNodes['cool.node'].ReservedMem, '10 GiB / 1.021 GiB')
-      assert.equal(out.ParsedNodes['cool.node'].UpdatedAt, '2016-03-08T19:02:41Z')
-      assert.equal(out.ParsedNodes['cool.node'].Labels.env, 'test')
-      assert.equal(out.ParsedNodes['cool.node'].Labels.hd, 'ssd')
-
-      assert.equal(out.ParsedNodes['un.cool.node'].Host, uncoolNode.host)
-      assert.isNumber(out.ParsedNodes['un.cool.node'].Containers)
-      assert.isString(out.ParsedNodes['un.cool.node'].ID)
-      assert.equal(out.ParsedNodes['un.cool.node'].Status, 'Healthy')
-      assert.equal(out.ParsedNodes['un.cool.node'].Containers, 4)
-      assert.equal(out.ParsedNodes['un.cool.node'].ReservedCpus, '0 / 1')
-      assert.equal(out.ParsedNodes['un.cool.node'].ReservedMem, '10 GiB / 1.021 GiB')
-      assert.equal(out.ParsedNodes['un.cool.node'].UpdatedAt, '2016-03-08T19:02:41Z')
-      assert.equal(out.ParsedNodes['un.cool.node'].Labels.env, 'prod')
-      assert.equal(out.ParsedNodes['un.cool.node'].Labels.hd, 'disk')
+      assert.equal(Object.keys(out.ParsedNodes).length, 0)
       done()
     })
 
-    it('should only return correctly formated nodes', function (done) {
-      var coolNode = {
+    it('should parse node with `(unknown)` nodename', function (done) {
+      var firstNode = {
         Labels: 'env=test, hd=ssd',
         Containers: 100,
-        nodeName: '  cool.node',
+        nodeName: '(unknown)',
         host: '10.42.42.42:4242'
       }
-      var uncoolNode = {
+      var secondNode = {
         Containers: 4,
-        nodeName: '  un.cool.node',
+        nodeName: '(unknown)',
         host: '10.7.7.7:4242'
       }
-      var testHosts = swarmInfoMock([coolNode, uncoolNode])
+      var testHosts = swarmInfoMock([firstNode, secondNode])
       delete testHosts.SystemStatus[18]
       var out = Swarmerode._Swarmerode._parseSwarmSystemStatus(testHosts.SystemStatus)
       assert.equal(out.Role, 'primary')
@@ -223,19 +202,71 @@ describe('Swarmerode', function () {
       assert.equal(out.Filters, 'health, port, dependency, affinity, constraint')
       assert.isNumber(out.Nodes)
       assert.equal(out.Nodes, 2)
+      assert.equal(Object.keys(out.ParsedNodes).length, 2)
+      assert.equal(out.ParsedNodes['10.42.42.42:4242'].Host, firstNode.host)
+      assert.isNumber(out.ParsedNodes['10.42.42.42:4242'].Containers)
+      assert.isString(out.ParsedNodes['10.42.42.42:4242'].ID)
+      assert.equal(out.ParsedNodes['10.42.42.42:4242'].Containers, 100)
+      assert.equal(out.ParsedNodes['10.42.42.42:4242'].Status, 'Healthy')
+      assert.equal(out.ParsedNodes['10.42.42.42:4242'].ReservedCpus, '0 / 1')
+      assert.equal(out.ParsedNodes['10.42.42.42:4242'].ReservedMem, '10 GiB / 1.021 GiB')
+      assert.equal(out.ParsedNodes['10.42.42.42:4242'].UpdatedAt, '2016-03-08T19:02:41Z')
+      assert.equal(out.ParsedNodes['10.42.42.42:4242'].Labels.env, 'test')
+      assert.equal(out.ParsedNodes['10.42.42.42:4242'].Labels.hd, 'ssd')
 
-      assert.equal(out.ParsedNodes['cool.node'].Host, coolNode.host)
-      assert.isNumber(out.ParsedNodes['cool.node'].Containers)
-      assert.isString(out.ParsedNodes['cool.node'].ID)
-      assert.equal(out.ParsedNodes['cool.node'].Containers, 100)
-      assert.equal(out.ParsedNodes['cool.node'].Status, 'Healthy')
-      assert.equal(out.ParsedNodes['cool.node'].ReservedCpus, '0 / 1')
-      assert.equal(out.ParsedNodes['cool.node'].ReservedMem, '10 GiB / 1.021 GiB')
-      assert.equal(out.ParsedNodes['cool.node'].UpdatedAt, '2016-03-08T19:02:41Z')
-      assert.equal(out.ParsedNodes['cool.node'].Labels.env, 'test')
-      assert.equal(out.ParsedNodes['cool.node'].Labels.hd, 'ssd')
+      assert.equal(out.ParsedNodes['10.7.7.7:4242'].Host, secondNode.host)
+      assert.isNumber(out.ParsedNodes['10.7.7.7:4242'].Containers)
+      assert.isString(out.ParsedNodes['10.7.7.7:4242'].ID)
+      assert.equal(out.ParsedNodes['10.7.7.7:4242'].Containers, 4)
+      assert.equal(out.ParsedNodes['10.7.7.7:4242'].Status, 'Healthy')
+      assert.equal(out.ParsedNodes['10.7.7.7:4242'].ReservedCpus, '0 / 1')
+      assert.isUndefined(out.ParsedNodes['10.7.7.7:4242'].ReservedMem)
+      assert.equal(out.ParsedNodes['10.7.7.7:4242'].UpdatedAt, '2016-03-08T19:02:41Z')
 
-      assert.isUndefined(out.ParsedNodes['un.cool.node'])
+      done()
+    })
+
+    it('should parse node with `(unknown)` nodename and error', function (done) {
+      var firstNode = {
+        Labels: 'env=test, hd=ssd',
+        Containers: 100,
+        nodeName: '(unknown)',
+        host: '10.42.42.42:4242'
+      }
+      var secondNode = {
+        Containers: 4,
+        nodeName: '(unknown)',
+        host: '10.7.7.7:4242'
+      }
+      var isError = true
+      var testHosts = swarmInfoMock([firstNode, secondNode], isError)
+      var out = Swarmerode._Swarmerode._parseSwarmSystemStatus(testHosts.SystemStatus)
+      assert.equal(out.Role, 'primary')
+      assert.equal(out.Strategy, 'spread')
+      assert.equal(out.Filters, 'health, port, dependency, affinity, constraint')
+      assert.isNumber(out.Nodes)
+      assert.equal(out.Nodes, 2)
+      assert.equal(Object.keys(out.ParsedNodes).length, 2)
+      assert.equal(out.ParsedNodes['10.42.42.42:4242'].Host, firstNode.host)
+      assert.isNumber(out.ParsedNodes['10.42.42.42:4242'].Containers)
+      assert.isString(out.ParsedNodes['10.42.42.42:4242'].ID)
+      assert.equal(out.ParsedNodes['10.42.42.42:4242'].Containers, 100)
+      assert.equal(out.ParsedNodes['10.42.42.42:4242'].Status, 'Pending')
+      assert.equal(out.ParsedNodes['10.42.42.42:4242'].Error, 'Docker daemon is unavailable')
+      assert.equal(out.ParsedNodes['10.42.42.42:4242'].ReservedCpus, '0 / 1')
+      assert.equal(out.ParsedNodes['10.42.42.42:4242'].ReservedMem, '10 GiB / 1.021 GiB')
+      assert.equal(out.ParsedNodes['10.42.42.42:4242'].UpdatedAt, '2016-03-08T19:02:41Z')
+      assert.equal(out.ParsedNodes['10.42.42.42:4242'].Labels.env, 'test')
+      assert.equal(out.ParsedNodes['10.42.42.42:4242'].Labels.hd, 'ssd')
+
+      assert.equal(out.ParsedNodes['10.7.7.7:4242'].Host, secondNode.host)
+      assert.isNumber(out.ParsedNodes['10.7.7.7:4242'].Containers)
+      assert.isString(out.ParsedNodes['10.7.7.7:4242'].ID)
+      assert.equal(out.ParsedNodes['10.7.7.7:4242'].Containers, 4)
+      assert.equal(out.ParsedNodes['10.7.7.7:4242'].Status, 'Pending')
+      assert.equal(out.ParsedNodes['10.7.7.7:4242'].Error, 'Docker daemon is unavailable')
+      assert.equal(out.ParsedNodes['10.7.7.7:4242'].ReservedCpus, '0 / 1')
+      assert.equal(out.ParsedNodes['10.7.7.7:4242'].UpdatedAt, '2016-03-08T19:02:41Z')
 
       done()
     })
