@@ -117,7 +117,7 @@ Swarmerode._parseSwarmSystemStatus = function (systemStatus) {
         } else if (key.indexOf('ServerVersion') > -1) {
           normalizedKey = 'ServerVersion'
         }
-        if (normalizedKey && nodesArray.length > 0) {
+        if (normalizedKey && nodesArray.length > 0 && !nodesArray[nodesArray.length - 1][normalizedKey]) {
           if (normalizedKey === 'Labels') {
             nodesArray[nodesArray.length - 1][normalizedKey] = parseLabels(value)
           } else {
