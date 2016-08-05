@@ -1,6 +1,6 @@
 {
   "name": "swarmerode",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Swarm Client Extension for Dockerode",
   "main": "index.js",
   "scripts": {
