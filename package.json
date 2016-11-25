@@ -46,7 +46,7 @@
     "coveralls": "^2.11.6",
     "github-changes": "^1.0.1",
     "istanbul": "^0.4.2",
-    "mocha": "^2.5.1",
+    "mocha": "^3.2.0",
     "sinon": "^1.17.3",
     "standard": "^7.1.0"
   }
