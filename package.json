@@ -48,6 +48,6 @@
     "istanbul": "^0.4.2",
     "mocha": "^2.5.1",
     "sinon": "^1.17.3",
-    "standard": "^7.1.0"
+    "standard": "^10.0.1"
   }
 }
